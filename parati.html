@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pomodoro Timer</title>
+
+    <style>
+        @font-face {
+            font-family: 'Carolena Narashy';
+            src: url('Carolena Narashy.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Amore';
+            src: url('Amore.otf') format('opentype');
+        }
+
+        @font-face {
+            font-family: 'Madison';
+            src: url('Avenue de Madison.ttf') format('truetype');
+        }
+
+        body {
+            font-family: 'Carolena Narashy', cursive;
+            background-image: url('https://i.imgur.com/JqQb2dQ.png');
+            background-repeat: repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .contenedor {
+            background-color: #fff6e6;
+            border: 2px solid #f4c29f;
+            border-radius: 15px;
+            padding: 25px;
+            width: 320px;
+            height: 430px;
+            text-align: center;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .titulo {
+            font-family: 'Amore';
+            font-size: 24px;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .divisor {
+            width: 100%;
+            height: 1.5px;
+            background-color: #f4c29f;
+            opacity: 0.6;
+        }
+
+        h1 {
+            font-size: 48px;
+            margin: 10px 0;
+            font-family: 'Madison';
+        }
+
+        .fila-inferior {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .imagen-gif {
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 2px solid #00000020;
+        }
+
+        .botones-laterales {
+            display: flex;
+            flex-direction: column;
+            margin-left: 20px;
+        }
+
+        .boton {
+            border: none;
+            padding: 0;
+            margin: 10px 0;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 45px;
+            height: 45px;
+            background-color: transparent;
+        }
+
+        .boton:hover {
+            transform: scale(1.05);
+        }
+
+        .boton img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .botones-texto {
+            margin-top: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .boton-texto {
+            background-color: #f9d4a0;
+            border: 2px solid #f4c29f;
+            color: #5c3b1e;
+            font-family: 'Carolena Narashy', cursive;
+            font-size: 16px;
+            padding: 4px 0;
+            width: 50px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .boton-texto:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .boton-texto:hover:not(:disabled) {
+            background-color: #ffe1b7;
+            transform: translateY(-1px);
+        }
+
+        .tiempoo {
+            font-family: 'Madison';
+            font-size: 48px;
+            margin: 10px 0;
+        }
+        
+        .estado-sesion {
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            color: #3b2525;
+            margin: 5px 0 15px 0;
+            height: 24px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-contenido {
+            background-color: #fff6e6;
+            padding: 20px;
+            border-radius: 15px;
+            width: 250px;
+            border: 2px solid #f4c29f;
+            font-family: Arial, sans-serif;
+        }
+        
+        .modal-botones {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .modal-boton {
+            background-color: #f9d4a0;
+            border: 2px solid #f4c29f;
+            color: #5c3b1e;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .modal-boton:hover {
+            background-color: #ffe1b7;
+            transform: translateY(-2px);
+        }
+        
+        .opciones-texto {
+            font-family: Arial, sans-serif;
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .opciones-texto label {
+            font-size: 14px;
+            color: #5c3b1e;
+            margin-right: 10px;
+        }
+        
+        .input-numero {
+            width: 60px;
+            padding: 8px;
+            border: 2px solid #f4c29f;
+            border-radius: 8px;
+            background-color: #fff6e6;
+            color: #5c3b1e;
+            font-size: 14px;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .input-numero:focus {
+            outline: none;
+            border-color: #e6a67c;
+            box-shadow: 0 0 0 2px rgba(230, 166, 124, 0.3);
+        }
+        
+        /* Estilo para los botones de incremento/decremento */
+        .input-numero::-webkit-inner-spin-button,
+        .input-numero::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        /* Botones personalizados para incrementar/decrementar */
+        .input-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .input-buttons {
+            position: absolute;
+            right: 2px;
+            top: 2px;
+            bottom: 2px;
+            width: 20px;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #f4c29f;
+        }
+        
+        .input-button {
+            flex: 1;
+            background: #f9d4a0;
+            border: none;
+            color: #5c3b1e;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        
+        .input-button:first-child {
+            border-bottom: 1px solid #f4c29f;
+        }
+        
+        .input-button:hover {
+            background: #e6a67c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="contenedor">
+        
+        <div class="titulo">The time of us</div>
+        <div class="divisor"></div>
+
+        <div class="tiempoo">
+            <h1>25:00</h1>
+        </div>
+        
+        <div class="estado-sesion" id="estado-sesion">Sesión 1 - Trabajo</div>
+
+        <div class="botones-texto">
+            <button class="boton-texto" disabled id="boton-jugar">▶</button>
+            <button class="boton-texto" disabled id="boton-reintentar">⥄</button>
+            <button class="boton-texto" disabled id="boton-sol">☀</button>
+        </div>
+
+        <br>
+
+        <div class="fila-inferior">
+            <img id="imagen-principal" src="Uuu.gif" alt="Animación" class="imagen-gif" />
+
+            <div class="botones-laterales">
+                <button class="boton">
+                    <img src="girasol.jpg" alt="Flor">
+                </button>
+                
+                <button class="boton">
+                    <img src="vee.jpg" alt="Reiniciar">
+                </button>
+                <button class="boton" id="boton-opciones">
+                    <img src="vee2.jpg" alt="Opciones">
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de opciones -->
+    <div class="modal" id="modal-opciones">
+        <div class="modal-contenido">
+            <h3 style="margin-top: 0;">Opciones</h3>
+            <div style="margin-bottom: 15px;">
+                <div class="opciones-texto">
+                    <label>Tiempo pomodoro (min):</label>
+                    <div class="input-container">
+                        <input type="number" id="pomodoro-time" min="1" max="60" value="25" class="input-numero">
+                        <div class="input-buttons">
+                            <button class="input-button" onclick="document.getElementById('pomodoro-time').stepUp()">▲</button>
+                            <button class="input-button" onclick="document.getElementById('pomodoro-time').stepDown()">▼</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="opciones-texto">
+                    <label>Descanso corto (min):</label>
+                    <div class="input-container">
+                        <input type="number" id="short-break-time" min="1" max="15" value="5" class="input-numero">
+                        <div class="input-buttons">
+                            <button class="input-button" onclick="document.getElementById('short-break-time').stepUp()">▲</button>
+                            <button class="input-button" onclick="document.getElementById('short-break-time').stepDown()">▼</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="opciones-texto">
+                    <label>Descanso largo (min):</label>
+                    <div class="input-container">
+                        <input type="number" id="long-break-time" min="1" max="30" value="15" class="input-numero">
+                        <div class="input-buttons">
+                            <button class="input-button" onclick="document.getElementById('long-break-time').stepUp()">▲</button>
+                            <button class="input-button" onclick="document.getElementById('long-break-time').stepDown()">▼</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="opciones-texto">
+                    <label>Pomodoros antes de descanso largo:</label>
+                    <div class="input-container">
+                        <input type="number" id="pomodoros-before-long-break" min="1" max="10" value="4" class="input-numero">
+                        <div class="input-buttons">
+                            <button class="input-button" onclick="document.getElementById('pomodoros-before-long-break').stepUp()">▲</button>
+                            <button class="input-button" onclick="document.getElementById('pomodoros-before-long-break').stepDown()">▼</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-botones">
+                <button class="modal-boton" id="guardar-opciones">Guardar</button>
+                <button class="modal-boton" id="cancelar-opciones">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const imagenPrincipal = document.getElementById('imagen-principal');
+        const botones = document.querySelectorAll('.boton');
+        const botonFlor = botones[0];
+        const botonReiniciar = botones[1];
+        const botonOpciones = document.getElementById('boton-opciones');
+
+        const tiempoElemento = document.querySelector('.tiempoo');
+        const estadoSesionElemento = document.getElementById('estado-sesion');
+        const botonesTexto = document.querySelectorAll('.boton-texto');
+
+        const botonJugar = document.getElementById('boton-jugar');
+        const botonTextoReintentar = document.getElementById('boton-reintentar');
+        const botonTextoSol = document.getElementById('boton-sol');
+
+        // Elementos del modal
+        const modalOpciones = document.getElementById('modal-opciones');
+        const guardarOpciones = document.getElementById('guardar-opciones');
+        const cancelarOpciones = document.getElementById('cancelar-opciones');
+
+        // Variables del Pomodoro
+        let timeoutsActivos = [];
+        let intervalo = null;
+        let segundosRestantes = 25 * 60; // 25 minutos iniciales
+        let isPomodoro = true;
+        let isRunning = false;
+        let pomodoroCount = 0;
+        
+        // Configuración
+        let pomodoroTime = 25;
+        let shortBreakTime = 5;
+        let longBreakTime = 15;
+        let pomodorosBeforeLongBreak = 4;
+
+        function limpiarAnimaciones() {
+            timeoutsActivos.forEach(timeoutID => clearTimeout(timeoutID));
+            timeoutsActivos = [];
+        }
+
+        function cambiarImagenConDelay(src, delay) {
+            const id = setTimeout(() => {
+                imagenPrincipal.src = src;
+            }, delay);
+            timeoutsActivos.push(id);
+        }
+
+        function actualizarTiempo() {
+            const minutos = Math.floor(segundosRestantes / 60).toString().padStart(2, '0');
+            const segundos = (segundosRestantes % 60).toString().padStart(2, '0');
+            tiempoElemento.textContent = `${minutos}:${segundos}`;
+        }
+        
+        function actualizarEstadoSesion() {
+            if (isPomodoro) {
+                estadoSesionElemento.textContent = `Sesión ${pomodoroCount + 1} - Trabajo`;
+            } else {
+                if (pomodoroCount % pomodorosBeforeLongBreak === 0) {
+                    estadoSesionElemento.textContent = `Descanso Largo`;
+                } else {
+                    estadoSesionElemento.textContent = `Descanso Corto`;
+                }
+            }
+        }
+
+        function iniciarTemporizador() {
+            if (intervalo) return; // Ya está corriendo
+            
+            isRunning = true;
+            botonJugar.textContent = '❚❚'; // Cambiar a pausa
+            intervalo = setInterval(() => {
+                if (segundosRestantes > 0) {
+                    segundosRestantes--;
+                    actualizarTiempo();
+                } else {
+                    clearInterval(intervalo);
+                    intervalo = null;
+                    isRunning = false;
+                    
+                    if (isPomodoro) {
+                        pomodoroCount++;
+                        if (pomodoroCount % pomodorosBeforeLongBreak === 0) {
+                            // Descanso largo
+                            segundosRestantes = longBreakTime * 60;
+                            isPomodoro = false;
+                        } else {
+                            // Descanso corto
+                            segundosRestantes = shortBreakTime * 60;
+                            isPomodoro = false;
+                        }
+                    } else {
+                        // Volver a pomodoro
+                        segundosRestantes = pomodoroTime * 60;
+                        isPomodoro = true;
+                    }
+                    
+                    actualizarTiempo();
+                    actualizarEstadoSesion();
+                    botonJugar.textContent = '▶';
+                }
+            }, 1000);
+        }
+        
+        function pausarTemporizador() {
+            clearInterval(intervalo);
+            intervalo = null;
+            isRunning = false;
+            botonJugar.textContent = '▶';
+        }
+        
+        function reiniciarTemporizador() {
+            clearInterval(intervalo);
+            intervalo = null;
+            isRunning = false;
+            segundosRestantes = isPomodoro ? pomodoroTime * 60 : 
+                              (pomodoroCount % pomodorosBeforeLongBreak === 0 ? longBreakTime * 60 : shortBreakTime * 60);
+            actualizarTiempo();
+            actualizarEstadoSesion();
+            botonJugar.textContent = '▶';
+        }
+        
+        function alternarModo() {
+            // Mostrar el modal de opciones cuando se hace clic en ☀
+            document.getElementById('pomodoro-time').value = pomodoroTime;
+            document.getElementById('short-break-time').value = shortBreakTime;
+            document.getElementById('long-break-time').value = longBreakTime;
+            document.getElementById('pomodoros-before-long-break').value = pomodorosBeforeLongBreak;
+            modalOpciones.style.display = 'flex';
+        }
+
+        botonFlor.addEventListener('click', () => {
+            limpiarAnimaciones();
+            imagenPrincipal.src = 'giflfor.gif';
+            cambiarImagenConDelay('pestañeo2.gif', 3000);
+        });
+
+        botonReiniciar.addEventListener('click', () => {
+            limpiarAnimaciones();
+            mostrarSecuencia();
+        });
+
+        botonJugar.addEventListener('click', () => {
+            if (isRunning) {
+                pausarTemporizador();
+            } else {
+                iniciarTemporizador();
+            }
+        });
+        
+        botonTextoReintentar.addEventListener('click', () => {
+            reiniciarTemporizador();
+        });
+        
+        botonTextoSol.addEventListener('click', () => {
+            alternarModo();
+        });
+
+    botonOpciones.addEventListener('click', () => {
+                    limpiarAnimaciones();
+        imagenPrincipal.src = 'Uuu.gif';  // Muestra la imagen sola.jpeg
+        botonesTexto.forEach(boton => {
+            boton.disabled = false;  // Opcional: sigue habilitando los botones de texto
+        });
+    });
+        
+        guardarOpciones.addEventListener('click', () => {
+            // Guardar nuevas opciones
+            pomodoroTime = parseInt(document.getElementById('pomodoro-time').value) || 25;
+            shortBreakTime = parseInt(document.getElementById('short-break-time').value) || 5;
+            longBreakTime = parseInt(document.getElementById('long-break-time').value) || 15;
+            pomodorosBeforeLongBreak = parseInt(document.getElementById('pomodoros-before-long-break').value) || 4;
+            
+            // Aplicar cambios si es necesario
+            if (isPomodoro) {
+                segundosRestantes = pomodoroTime * 60;
+            } else {
+                segundosRestantes = (pomodoroCount % pomodorosBeforeLongBreak === 0 ? longBreakTime : shortBreakTime) * 60;
+            }
+            
+            actualizarTiempo();
+            actualizarEstadoSesion();
+            modalOpciones.style.display = 'none';
+        });
+        
+        cancelarOpciones.addEventListener('click', () => {
+            modalOpciones.style.display = 'none';
+        });
+
+        function mostrarSecuencia() {
+            const miaus = [
+                { src: 'gatogif.gif', duracion: 3000 },
+                { src: 'miau1.jpeg', duracion: 4000 },
+                { src: 'miau2.jpeg', duracion: 5000 },
+                { src: 'miau3.jpeg', duracion: 5000 },
+                { src: 'miau4.jpeg', duracion: 5000 },              
+                { src: 'miauchao2.gif', duracion: 3000 },             
+                { src: 'fondo.jpeg', duracion: 4000 },
+            ];
+            let tiempo = 0;
+
+            miaus.forEach((img) => {
+                cambiarImagenConDelay(img.src, tiempo);
+                tiempo += img.duracion;
+            });
+
+            cambiarImagenConDelay('fondo.jpeg', tiempo);
+        }
+        
+        // Inicializar
+        actualizarTiempo();
+        actualizarEstadoSesion();
+    </script>
+
+</body>
+
+</html>
